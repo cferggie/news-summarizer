@@ -45,23 +45,28 @@ class Scraper:
         soup = BeautifulSoup(html_content, "html.parser")
 
 
-        #could use regex or nlp to extract all the containers that are likely to be the article content (article main, article content)
+        #could use regex or nlp to extract all the containers that are likely to be the article content (article main, 
+        # article content, page content or page main) if i use this then i need to create a function for it before this one
 
         try:
             article_headline = soup.find('h1').get_text(strip=True)
-            article_content = soup.find('p').get_text(strip=True)
+            article_content = soup.find('div', class_='').get_text(strip=True)
 
             if article_headline and article_content:
                 return article_headline, article_content
-            #If this doesn't work, you most likely need to change the class identifier
         except Exception as e:
+            # Error is most likely due to the element class name changing over time
             self.log_errors(f"Failed to parse page: {e}")
             return None
         
 scraper_cnn = Scraper(url='https://www.cnn.com/2025/01/04/politics/mike-johnson-donald-trump-gop-agenda/index.html')
 article_headline, article_content = scraper_cnn.parse_content()
-print(f'article headline: {article_headline}\narticle content: {article_content}')
+print(f'article headline: {article_headline}\narticle content: {article_content}\n')
 
 scraper_fox = Scraper(url='https://www.foxnews.com/us/pennsylvania-man-served-army-indicted-charges-attempted-join-hezbollah-kill-jews-doj')
 article_headline, article_content = scraper_fox.parse_content()
-print(f'article headline: {article_headline}\narticle content: {article_content}')
+print(f'article headline: {article_headline}\narticle content: {article_content}\n')
+
+scraper_ap = Scraper(url='https://apnews.com/article/new-orleans-bourbon-street-truck-crash-terrorism-149bdb38ca0d7fc8e184eb3d32b5de40')
+article_headline, article_content = scraper_fox.parse_content()
+print(f'article headline: {article_headline}\narticle content: {article_content}\n')
