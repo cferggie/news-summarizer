@@ -44,7 +44,7 @@ class Scraper:
         soup = BeautifulSoup(html_content, "html.parser")
         try:
             article_headline = soup.find('h1', class_= "headline__text inline-placeholder vossi-headline-text").get_text(strip=True)
-            article_content = soup.find('div' class_=)
+            article_content = 4 # placeholder
 
             if article_headline and article_content:
                 return article_headline, article_content
@@ -52,7 +52,7 @@ class Scraper:
         except Exception as e:
             self.log_errors(f"Failed to parse page: {e}")
             return None
-
+        
 scraper = Scraper(url='https://www.cnn.com/2025/01/04/politics/mike-johnson-donald-trump-gop-agenda/index.html')
 article_headline, article_content = scraper.parse_content()
 print(f'article headline: {article_headline}\narticle content: {article_content}')
