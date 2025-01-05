@@ -13,7 +13,7 @@ def summarize_text(paragraph):
         "system": """
         The user will provide text. The response should ingest the paragraph and provide an unbiased summary of the text. 
         Begin each response with Unbiased Summary:""",
-
+        
         "stream": False
     }
 
