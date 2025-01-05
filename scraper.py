@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import re
 
 class Scraper:
     def __init__(self, url):
@@ -42,9 +43,13 @@ class Scraper:
             return None
             
         soup = BeautifulSoup(html_content, "html.parser")
+
+
+        #could use regex or nlp to extract all the containers that are likely to be the article content (article main, article content)
+
         try:
-            article_headline = soup.find('h1', class_= "headline__text inline-placeholder vossi-headline-text").get_text(strip=True)
-            article_content = 4 # placeholder
+            article_headline = soup.find('h1').get_text(strip=True)
+            article_content = soup.find('p').get_text(strip=True)
 
             if article_headline and article_content:
                 return article_headline, article_content
@@ -53,6 +58,10 @@ class Scraper:
             self.log_errors(f"Failed to parse page: {e}")
             return None
         
-scraper = Scraper(url='https://www.cnn.com/2025/01/04/politics/mike-johnson-donald-trump-gop-agenda/index.html')
-article_headline, article_content = scraper.parse_content()
+scraper_cnn = Scraper(url='https://www.cnn.com/2025/01/04/politics/mike-johnson-donald-trump-gop-agenda/index.html')
+article_headline, article_content = scraper_cnn.parse_content()
+print(f'article headline: {article_headline}\narticle content: {article_content}')
+
+scraper_fox = Scraper(url='https://www.foxnews.com/us/pennsylvania-man-served-army-indicted-charges-attempted-join-hezbollah-kill-jews-doj')
+article_headline, article_content = scraper_fox.parse_content()
 print(f'article headline: {article_headline}\narticle content: {article_content}')
