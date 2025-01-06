@@ -134,12 +134,12 @@ class Scraper:
         
 scraper_cnn = Scraper(url='https://www.cnn.com/2025/01/04/politics/mike-johnson-donald-trump-gop-agenda/index.html')
 article_headline, article_content = scraper_cnn.parse_content()
-print(f'article headline: {article_headline}\narticle content: {article_content}\n')
+print(f'CNN:\nArticle Headline: {article_headline}\n\nArticle Content: {article_content}\n')
 
 scraper_fox = Scraper(url='https://www.foxnews.com/us/pennsylvania-man-served-army-indicted-charges-attempted-join-hezbollah-kill-jews-doj')
 article_headline, article_content = scraper_fox.parse_content()
-print(f'article headline: {article_headline}\narticle content: {article_content}\n')
+print(f'Fox News:\nArticle Headline: {article_headline}\n\nArticle Content: {article_content}\n')
 
 scraper_ap = Scraper(url='https://apnews.com/article/new-orleans-bourbon-street-truck-crash-terrorism-149bdb38ca0d7fc8e184eb3d32b5de40')
-article_headline, article_content = scraper_fox.parse_content()
-print(f'article headline: {article_headline}\narticle content: {article_content}\n')
+article_headline, article_content = scraper_ap.parse_content()
+print(f'AP:\nArticle Headline: {article_headline}\n\nArticle Content: {article_content}\n')
