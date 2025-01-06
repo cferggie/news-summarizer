@@ -26,7 +26,39 @@ class Scraper:
             #catches any HTTP related errors
             self.log_errors(f"Failed to reach page: {e}")
             return None
+    
+    def article_content_extraction(self):
+        """
+        Extracts the article content from a webpage.
+        Input: self
+        Return: article content
+        """
+
+        # Retrieve HTML content
+        html_content = self.get_content()
+
+        # Incase HTML content is None
+        if not html_content:
+            return None
         
+        # Using heuristics we can find the proper div containers
+        string = 'article'   
+
+        # Get soup
+        soup = BeautifulSoup(html_content, 'html_parser')
+
+        # Extract article content
+        try:
+            article_content = soup.find('div')
+            print(type(article_content))
+            return article_content
+
+
+        except Exception as e:
+            # Error is most likely due to the element class name changing over time
+            self.log_errors(f"Failed to parse page: {e}")
+            return None
+     
     def parse_content(self):
         """
         Parses HTML content and returns the article headline and article content.
@@ -43,15 +75,14 @@ class Scraper:
             return None
             
         soup = BeautifulSoup(html_content, "html.parser")
-
-
-        #could use regex or nlp to extract all the containers that are likely to be the article content (article main, 
-        # article content, page content or page main) if i use this then i need to create a function for it before this one
-
         try:
             article_headline = soup.find('h1').get_text(strip=True)
-            article_content = soup.find('div', class_='').get_text(strip=True)
-
+            article_content = soup.find_all(lambda tag: 
+                         tag.name == 'div' and
+                         tag.get('class') and 
+                         any('article' and 'content' in cls for cls in tag.get('class'))
+                        )
+            
             if article_headline and article_content:
                 return article_headline, article_content
         except Exception as e:
