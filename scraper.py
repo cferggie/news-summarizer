@@ -34,28 +34,23 @@ class Scraper:
         Return: article content
         """
 
-        # Retrieve HTML content
+        # retrieve HTML content
         html_content = self.get_content()
 
-        # Incase HTML content is None
+        # incase HTML content is None
         if not html_content:
             return None
-        
-        # Using heuristics we can find the proper div containers
-        string = 'article'   
 
-        # Get soup
+        # extract article content
         soup = BeautifulSoup(html_content, 'html_parser')
-
-        # Extract article content
         try:
-            article_content = soup.find('div')
-            print(type(article_content))
+            article_content = soup.find('div', class_= lambda cls: cls and 'article' in cls and 'content' in cls in cls)                 
+            article_content = article_content.get_text() #extract only the text
+            article_content = " ".join(article_content.split())
             return article_content
-
-
+        
         except Exception as e:
-            # Error is most likely due to the element class name changing over time
+            # error is most likely due to the element class name changing over time
             self.log_errors(f"Failed to parse page: {e}")
             return None
      
@@ -67,10 +62,10 @@ class Scraper:
         Return: article headline AND article content or None
         """
         
-        #Retrieve HTML content
+        # retrieve html content
         html_content = self.get_content()
 
-        #if html content is None
+        # if html content is None
         if not html_content:
             return None
             
@@ -86,7 +81,7 @@ class Scraper:
             if article_headline and article_content:
                 return article_headline, article_content
         except Exception as e:
-            # Error is most likely due to the element class name changing over time
+            # error is most likely due to the element class name changing over time
             self.log_errors(f"Failed to parse page: {e}")
             return None
         
