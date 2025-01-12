@@ -1,5 +1,6 @@
 from base_scraper import BaseScraper
 from bs4 import BeautifulSoup
+import re
 
 class TheAPScraper(BaseScraper):
     def get_headline(self) -> str:
@@ -44,11 +45,8 @@ class TheAPScraper(BaseScraper):
             return None
 
         try:
-            # Match a div where the class contains 'page' and 'content'.
-            raw_content = soup.find(
-                'div', 
-                class_= lambda cls: cls and 'page' in cls and 'content' in cls in cls
-                )                 
+            # Match a div where the class contains 'page' and 'content'.             
+            raw_content = soup.find("div", class_=re.compile(r".*RichTextBody.*", re.IGNORECASE))
 
             if not raw_content:
                 raise ValueError("Article content not found in the provided HTML structure.")
@@ -61,6 +59,7 @@ class TheAPScraper(BaseScraper):
 
         except Exception as e:
             # Log errors, likely due to changes in HTML structure
+            print('error in soup')
             return None
 
     def get_article_data(self) -> tuple[str, str]:
