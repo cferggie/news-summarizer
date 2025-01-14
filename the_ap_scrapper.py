@@ -1,5 +1,4 @@
 from base_scraper import BaseScraper
-from bs4 import BeautifulSoup
 import re
 
 class TheAPScraper(BaseScraper):
@@ -16,19 +15,16 @@ class TheAPScraper(BaseScraper):
 
         # if html content is None
         if not soup:
-            return None
+            raise ValueError(f"Soup is None")
             
         try:
-            article_headline = soup.find('h1').get_text(strip=True)  
-
-            # Check if the headline exists
-            if not article_headline:
-                raise ValueError("Article content not found in the provided HTML structure.")
-            
+            article_headline = soup.find('h5').get_text(strip=True) 
             return article_headline
+        except AttributeError:
+            return None
         except Exception as e:
             # error is most likely due to the element class name changing over time
-            return None
+            raise ValueError(f"Unexpected error while extracting headline: {e}")
     
     def get_content(self) -> str:
         """
@@ -42,25 +38,20 @@ class TheAPScraper(BaseScraper):
         soup = self.get_soup()
 
         if not soup:
-            return None
+            raise ValueError(f"Soup is None")
 
         try:
             # Match a div where the class contains 'page' and 'content'.             
-            raw_content = soup.find("div", class_=re.compile(r".*RichTextBody.*", re.IGNORECASE))
+            raw_content = soup.find("div", class_=re.compile(r".*richtextbody.*", re.IGNORECASE))
 
-            if not raw_content:
-                raise ValueError("Article content not found in the provided HTML structure.")
-            
             # Extract and clean the text from the raw content
             raw_text = raw_content.get_text()
             cleaned_text = " ".join(raw_text.split())
             
             return cleaned_text
-
         except Exception as e:
             # Log errors, likely due to changes in HTML structure
-            print('error in soup')
-            return None
+            raise ValueError(f"Unexpected error while extracting headline: {e}")
 
     def get_article_data(self) -> tuple[str, str]:
         """
