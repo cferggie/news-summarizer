@@ -18,7 +18,7 @@ class TheAPScraper(BaseScraper):
             raise ValueError(f"Soup is None")
             
         try:
-            article_headline = soup.find('h5').get_text(strip=True) 
+            article_headline = soup.find('h1').get_text(strip=True) 
             return article_headline
         except AttributeError:
             return None
