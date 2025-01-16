@@ -1,3 +1,4 @@
 news-summarizer/
 scraper-notes.md
 tester.py
+__pycache__/
