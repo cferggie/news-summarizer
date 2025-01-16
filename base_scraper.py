@@ -64,4 +64,5 @@ class BaseScraper:
         except Exception as e:
             return None
 
-scraper_cnn = BaseScraper(url='https://www.cnn.com/2025/01/04/politics/mike-johnson-donald-trump-gop-agenda/index.html')
+if __name__ == '__main__':
+    print('File has been excecuted properly')
