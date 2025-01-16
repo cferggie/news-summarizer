@@ -76,6 +76,10 @@ class CNNScraper(BaseScraper):
 
         return headline, content
 
-scraper_cnn = CNNScraper(url='https://www.cnn.com/2025/01/04/politics/mike-johnson-donald-trump-gop-agenda/index.html')
-article_headline, article_content = scraper_cnn.get_article_data()
-print(f'CNN:\nArticle Headline: {article_headline}\n\nArticle Content: {article_content}\n')
+def main():
+    scraper_cnn = CNNScraper(url='https://www.cnn.com/2025/01/04/politics/mike-johnson-donald-trump-gop-agenda/index.html')
+    article_headline, article_content = scraper_cnn.get_article_data()
+    print(f'CNN:\nArticle Headline: {article_headline}\n\nArticle Content: {article_content}\n')
+
+if __name__ == '__main__':
+    main()

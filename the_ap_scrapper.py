@@ -66,7 +66,11 @@ class TheAPScraper(BaseScraper):
 
         return headline, content
 
-if __name__ == '__main__':
+def main():
     scraper_ap = TheAPScraper(url='https://apnews.com/article/new-orleans-bourbon-street-truck-crash-terrorism-149bdb38ca0d7fc8e184eb3d32b5de40')
     article_headline, article_content = scraper_ap.get_article_data()
     print(f'The AP:\nArticle Headline: {article_headline}\n\nArticle Content: {article_content}\n')
+
+
+if __name__ == '__main__':
+   main()

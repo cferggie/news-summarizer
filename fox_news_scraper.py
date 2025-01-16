@@ -76,6 +76,10 @@ class FoxNewsScraper(BaseScraper):
 
         return headline, content
 
-scraper_fox = FoxNewsScraper(url='https://www.foxnews.com/us/pennsylvania-man-served-army-indicted-charges-attempted-join-hezbollah-kill-jews-doj')
-article_headline, article_content = scraper_fox.get_article_data()
-print(f'Fox News:\nArticle Headline: {article_headline}\n\nArticle Content: {article_content}\n')
+def main():
+    scraper_fox = FoxNewsScraper(url='https://www.foxnews.com/us/pennsylvania-man-served-army-indicted-charges-attempted-join-hezbollah-kill-jews-doj')
+    article_headline, article_content = scraper_fox.get_article_data()
+    print(f'Fox News:\nArticle Headline: {article_headline}\n\nArticle Content: {article_content}\n')
+
+if __name__ == '__main__':
+    main()
