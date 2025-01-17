@@ -51,6 +51,21 @@ class ArticleFinder(BaseScraper):
         except Exception as e:
             print(f'Error occured in topic navigation: {e}')
 
+    def get_topic_html_content(self):
+        """
+        Return
+           html_content (str): list containing the html content to the users desired topics 
+        """
+        # Retreive html content
+        pages = self.topic_navigation()
+
+        content = []
+        for page in pages:
+            self.url = page
+            html_content = self.fetch_html_content()
+            content.append(html_content)
+        print(content)
+
     def hyperlink_search(self):
         """
         Searches soup for hyperlinks. 
@@ -61,7 +76,7 @@ class ArticleFinder(BaseScraper):
         """
 
         # retrieve html content
-        soup = self.get_soup()
+        soup = self.get_topic_html_content
 
         # if html content is None
         if not soup:
@@ -105,10 +120,11 @@ def main():
     }
     user_data = json.dumps(user_data)
     article_finder = ArticleFinder(url='https://www.cnn.com/politics', user_data=user_data)
-    print(article_finder.topic_navigator())
-    urls = article_finder.get_link()
-    for url in urls:
-        print(url) 
+    print(article_finder.topic_navigation())
+    print(article_finder.get_topic_html_content())
+    # urls = article_finder.get_link()
+    # for url in urls:
+    #     print(url) 
 
 if __name__ == '__main__':
     main()
