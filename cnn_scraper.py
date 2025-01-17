@@ -2,6 +2,17 @@ from base_scraper import BaseScraper
 from bs4 import BeautifulSoup
 
 class CNNScraper(BaseScraper):
+    def __init__(self, url: str):
+        """
+        Initializes the CNNScraper with the URL of the CNN article.
+
+        Args:
+            url (str): The URL of the article to scrape.
+        """
+        if not isinstance(url, str) or not url:
+            raise ValueError("A valid URL is required to initialize CNNScraper.")
+        super().__init__(url)
+
     def get_headline(self) -> str:
         """
         Extracts the headline from the article page.
@@ -53,11 +64,10 @@ class CNNScraper(BaseScraper):
             if not raw_content:
                 raise ValueError("Article content not found in the provided HTML structure.")
             
-            # Extract and clean the text from the raw content
+            # Extract the text from the raw content
             raw_text = raw_content.get_text()
-            cleaned_text = " ".join(raw_text.split())
             
-            return cleaned_text
+            return raw_text
 
         except Exception as e:
             # Log errors, likely due to changes in HTML structure

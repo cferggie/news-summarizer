@@ -2,6 +2,17 @@ from base_scraper import BaseScraper
 import re
 
 class TheAPScraper(BaseScraper):
+    def __init__(self, url: str):
+        """
+        Initializes the TheAPScraper with the URL of the The AP article.
+
+        Args:
+            url (str): The URL of the article to scrape.
+        """
+        if not isinstance(url, str) or not url:
+            raise ValueError("A valid URL is required to initialize TheAPScraper.")
+        super().__init__(url)
+
     def get_headline(self) -> str:
         """
         Extracts the headline from the article page.
@@ -44,11 +55,10 @@ class TheAPScraper(BaseScraper):
             # Match a div where the class contains 'page' and 'content'.             
             raw_content = soup.find("div", class_=re.compile(r".*richtextbody.*", re.IGNORECASE))
 
-            # Extract and clean the text from the raw content
+            # Extract the text from the raw content
             raw_text = raw_content.get_text()
-            cleaned_text = " ".join(raw_text.split())
             
-            return cleaned_text
+            return raw_text
         except Exception as e:
             # Log errors, likely due to changes in HTML structure
             raise ValueError(f"Unexpected error while extracting headline: {e}")
