@@ -179,7 +179,7 @@ def main():
     # Set up logging
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(funcName)s',
         filename='cnn_article_finder.log',
         filemode='w'
     )
