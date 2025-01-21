@@ -48,11 +48,15 @@ class CNNArticleFinder:
         try:
             parsed_data = json.loads(user_data)
             self.topics = parsed_data.get('topics', [])
+
             if not self.topics:
+                self.logger.error("No topics provided in user_data")
                 raise ValueError("No topics provided in user_data")
             if not set(self.topics) & set(CNNConfig.TOPIC_PAGES.keys()):
-                raise ValueError('User provided topics do not match the topics in the CNNConfig.TOPIC_PAGES dictionary')
+                self.logger.error(f"Invalid topics provided: {self.topics}. Valid topics are: {list(CNNConfig.TOPIC_PAGES.keys())}")
+                raise ValueError('User provided topics do not match the topics in the CNNConfig.TOPIC_PAGES dictionary')        
         except json.JSONDecodeError as e:
+            self.logger.error(f"Invalid JSON format in user_data: {e}")
             raise CNNArticleFinderError(f"Invalid JSON format in user_data: {e}")
             
         self.url = url
@@ -74,6 +78,7 @@ class CNNArticleFinder:
         try:
             valid_topics = set(user_topics) & set(topic_pages.keys())
             if not valid_topics:
+                self.logger.error(f"No valid topics found. Provided topics: {self.topics}")
                 raise TopicNavigationError(f"No valid topics found. Provided topics: {self.topics}")
             
             return [topic_pages[key] for key in valid_topics]
@@ -187,7 +192,7 @@ def main():
     # Example usage
     try:
         user_data = json.dumps({
-            'topics': ['Politics', 'World']
+            'topics': []
         })
         
         article_finder = CNNArticleFinder(
