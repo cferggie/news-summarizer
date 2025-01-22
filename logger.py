@@ -15,6 +15,15 @@ def setup_logger(name: str) -> logging.Logger:
     # Create logs directory if it doesn't exist
     if not os.path.exists('logs'):
         os.makedirs('logs')
+    
+    # Get the filename from the logger name and create its directory
+    filename = name.split('.')[-1]  # Gets the last part of the module path
+    if filename != '__main__':
+        log_dir = os.path.join('logs', filename)
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+    else:
+        log_dir = 'logs'
         
     # Create logger
     logger = logging.getLogger(name)
@@ -26,7 +35,7 @@ def setup_logger(name: str) -> logging.Logger:
         # Create handlers
         console_handler = logging.StreamHandler()
         file_handler = logging.FileHandler(
-            filename=f'logs/{datetime.now().strftime("%Y-%m-%d")}.log',
+            filename=os.path.join(log_dir, f'{datetime.now().strftime("%Y-%m-%d")}.log'),
             mode='a'
         )
         

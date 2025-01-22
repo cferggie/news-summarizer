@@ -4,10 +4,14 @@ import json
 from logger import setup_logger
 
 def main():
+    # setup logger
+    # logger is inside the function to keep the module name as cnn_pipeline_test
     logger = setup_logger(__name__)
+    
     user_data = json.dumps({
         'topics': ['US']
     })
+    
     cnn_article_finder = CNNArticleFinder(user_data)
     links = cnn_article_finder.get_link() #dict {topic: [link1, link2, ...]}
 
