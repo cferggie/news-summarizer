@@ -1,6 +1,6 @@
 import json
 from logger import setup_logger
-from typing import Dict, List, Optional
+from typing import Dict, List
 from base_scraper import BaseScraper
 
 # Add custom exceptions
