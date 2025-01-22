@@ -211,6 +211,7 @@ def main():
         
     except Exception as e:
         article_finder.logger.error(f"Unexpected error: {e}")
+        raise Exception(f"Unexpected error: {e}")
 
 if __name__ == '__main__':
     main() 
