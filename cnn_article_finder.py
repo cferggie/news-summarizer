@@ -4,12 +4,32 @@ from typing import Dict, List, Optional
 from base_scraper import BaseScraper
 
 # Add custom exceptions
-class CNNArticleFinderError(Exception):
-    """Base exception for CNNArticleFinder"""
+class NoTopicsError(Exception):
+    """Raised when there's no topics provided"""
     pass
 
-class TopicNavigationError(CNNArticleFinderError):
+class InvalidJSONError(Exception):
+    """Raised when there's an error in the initialization of the CNNArticleFinder class"""
+    pass
+
+class NoMatchingTopicsError(Exception):
+    """Raised when there's no matching topics found"""
+    pass
+
+class TopicNavigationError(Exception):
     """Raised when there's an error in topic navigation"""
+    pass
+
+class PageSoupError(Exception):
+    """Raised when there's an error in getting soup"""
+    pass
+
+class DivNotFoundError(Exception):
+    """Raised when the div is not found in the soup"""
+    pass
+
+class AElementNotFoundError(Exception):
+    """Raised when the a elements are not found in the soup"""
     pass
 
 class CNNConfig:
@@ -32,34 +52,35 @@ class CNNArticleFinder:
     """
     Extracts URLs for trending CNN articles of the topics of interest.
     """
-    def __init__(self, url: str, user_data: str):
+    def __init__(self, user_data: str):
         """
         Args:
-            url (str): Base URL for CNN
             user_data (str): JSON string containing topics to find articles for
                            Example: '{"topics": ["Technology", "Health"]}'                    
         Raises:
-            ValueError: If no topics are provided by the user_data json string
-            ValueError: If no valid topics are found in the user_data json string
-            CNNArticleFinderError: Invalid JSON format in user_data
+            InitError: If no topics are provided by the user_data json string
+            InitError: If no valid topics are found in the user_data json string
+            InitError: Invalid JSON format in user_data
         """
         self.logger = setup_logger(__name__)
         
+        # This error handling will likely be given to another file. Will keep for now
         try:
             parsed_data = json.loads(user_data)
             self.topics = parsed_data.get('topics', [])
 
             if not self.topics:
-                self.logger.error("No topics provided in user_data")
-                raise ValueError("No topics provided in user_data")
-            if not set(self.topics) & set(CNNConfig.TOPIC_PAGES.keys()):
-                self.logger.error(f"Invalid topics provided: {self.topics}. Valid topics are: {list(CNNConfig.TOPIC_PAGES.keys())}")
-                raise ValueError('User provided topics do not match the topics in the CNNConfig.TOPIC_PAGES dictionary')        
-        except json.JSONDecodeError as e:
-            self.logger.error(f"Invalid JSON format in user_data: {e}")
-            raise CNNArticleFinderError(f"Invalid JSON format in user_data: {e}")
+                self.logger.critical("No topics provided in user_data")
+                raise NoTopicsError("No topics provided in user_data")
             
-        self.url = url
+            if not set(self.topics) & set(CNNConfig.TOPIC_PAGES.keys()):
+                self.logger.critical(f"Invalid topics provided: {self.topics}. Valid topics are: {list(CNNConfig.TOPIC_PAGES.keys())}")
+                raise NoMatchingTopicsError('User provided topics do not match the topics in the CNNConfig.TOPIC_PAGES dictionary')  
+                  
+        except json.JSONDecodeError as e:
+            self.logger.critical(f"Invalid JSON format in user_data: {e}")
+            raise InvalidJSONError(f"Invalid JSON format in user_data: {e}")
+        
         self.topic_pages = self.topic_navigation()
 
     def topic_navigation(self) -> List[str]:
@@ -70,7 +91,8 @@ class CNNArticleFinder:
             List[str]: List of URLs needed for extraction
 
         Raises:
-            TopicNavigationError: If no valid topics are found or navigation fails
+            NoMatchingTopicsError: If no matching topics are found
+            ValueError: Navigation fails
         """
         user_topics = self.topics
         topic_pages = CNNConfig.TOPIC_PAGES
@@ -78,41 +100,37 @@ class CNNArticleFinder:
         try:
             valid_topics = set(user_topics) & set(topic_pages.keys())
             if not valid_topics:
-                self.logger.error(f"No valid topics found. Provided topics: {self.topics}")
-                raise TopicNavigationError(f"No valid topics found. Provided topics: {self.topics}")
+                # This may not be useful right now, but will be once the LLM is creating desired user topics based 
+                # on political preferences.
+                self.logger.error(f"No matching topics found. Provided topics: {self.topics}")
+                raise NoMatchingTopicsError(f"No matching topics found. Provided topics: {self.topics}")
             
             return [topic_pages[key] for key in valid_topics]
             
         except Exception as e:
-            self.logger.error(f"Error in topic navigation: {e}")
-            raise TopicNavigationError(f"Failed to navigate topics: {e}") from e
+            self.logger.error(f"Error in topic_navigation: {e}")
+            raise Exception(f"Error in topic_navigation: {e}")   
 
-    def get_page_soup(self) -> Dict[str, Optional[object]]:
+    def get_page_soup(self) -> Dict[str, object]:
         """
         Fetches and parses HTML content for each topic page.
 
         Returns:
-            Dict[str, Optional[object]]: Dictionary containing BeautifulSoup objects for each topic
+            Dict[str, object]: Dictionary containing BeautifulSoup objects for each topic
 
         Raises:
-            CNNArticleFinderError: If no page content could be fetched
+            PageSoupError: If page content could not be fetched for any topic
         """
         content = {}
         for topic in self.topics:
             for page in self.topic_pages:
-                try:
-                    base_scraper = BaseScraper(url=page)
-                    page_soup = base_scraper.get_soup()
-                    if not page_soup:
-                        self.logger.warning(f"No soup content found for {page}")
-                        continue
-                    content[topic] = page_soup
-                except Exception as e:
-                    self.logger.error(f"Error fetching soup for {page}: {e}")
-                    content[topic] = None
-        
-        if not content:
-            raise CNNArticleFinderError("Failed to fetch any page content")
+                base_scraper = BaseScraper(url=page)
+                page_soup = base_scraper.get_soup() # Let the BaseScraper handle the errors
+                if not page_soup:
+                    self.logger.error(f"Could not get soup for {topic} from {page}")
+                    raise PageSoupError(f"Could not get soup for {topic} from {page}")
+                content[topic] = page_soup
+
         return content
 
     def hyperlink_search(self) -> Dict[str, List[str]]:
@@ -124,33 +142,29 @@ class CNNArticleFinder:
 
         Raises:
             ValueError: If page soup is not found
-            CNNArticleFinderError: If element finding fails
         """
         soup = self.get_page_soup()
-        if not soup:
-            raise ValueError('Page soup could not be found')
-        
         try:
             content = {}
             for topic, page in soup.items():
-                if page is None:
-                    self.logger.warning(f"Skipping hyperlink search for topic {topic} - no page content")
-                    continue
-                    
                 div = page.find('div', class_='container_lead-plus-headlines__cards-wrapper')
-                if div is None:
-                    self.logger.warning(f"No headline wrapper found for topic {topic}")
-                    continue
-                    
+                if not div:
+                    self.logger.warning(f"No headline wrapper found in soup for {topic}")
+                    raise DivNotFoundError(f"No headline wrapper found in soup for {topic}")
+
                 a_elements = div.find_all('a', href=True)
+                if not a_elements:
+                    self.logger.warning(f"No a elements found for {topic}. Hyperlinks not found")
+                    raise AElementNotFoundError(f"No a elements found for {topic}. Hyperlinks not found")
+
                 href_values = [tag['href'] for tag in a_elements]
                 content[topic] = href_values
             
             return content
             
         except Exception as e:
-            self.logger.error(f"Error in hyperlink search: {e}")
-            raise CNNArticleFinderError(f"Failed to find hyperlinks: {e}") from e
+            self.logger.error(f"Error in hyperlink_search: {e}")
+            raise Exception(f"Error in hyperlink_search: {e}")
 
     def get_link(self) -> Dict[str, List[str]]:
         """
@@ -161,7 +175,6 @@ class CNNArticleFinder:
 
         Raises:
             ValueError: If no hyperlinks are found
-            CNNArticleFinderError: If hyperlinks cannot be processed
         """
         try:
             hyperlinks = self.hyperlink_search()
@@ -178,7 +191,6 @@ class CNNArticleFinder:
             
         except Exception as e:
             self.logger.error(f"Error creating URLs: {e}")
-            raise CNNArticleFinderError(f"Failed to process hyperlinks: {e}") from e
 
 def main():
     try:
@@ -187,7 +199,6 @@ def main():
         })
         
         article_finder = CNNArticleFinder(
-            url=CNNConfig.BASE_URL, 
             user_data=user_data
         )
         
@@ -197,8 +208,6 @@ def main():
         article_finder.logger.info(f"Found hyperlinks: {article_finder.hyperlink_search()}")
         article_finder.logger.info(f"Complete URLs: {article_finder.get_link()}")
         
-    except CNNArticleFinderError as e:
-        article_finder.logger.error(f"Application error: {e}")
     except Exception as e:
         article_finder.logger.error(f"Unexpected error: {e}")
 
