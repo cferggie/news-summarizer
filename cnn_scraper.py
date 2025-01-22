@@ -1,5 +1,4 @@
 from base_scraper import BaseScraper
-from bs4 import BeautifulSoup
 
 class CNNScraper(BaseScraper):
     def __init__(self, url: str):
