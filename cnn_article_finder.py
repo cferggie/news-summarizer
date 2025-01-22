@@ -187,6 +187,9 @@ class CNNArticleFinder:
                     f"{CNNConfig.BASE_URL}{hyperlink}" 
                     for hyperlink in hyperlink_list
                 ]
+            
+            # remove duplicates
+            urls = {topic: list(dict.fromkeys(links)) for topic, links in urls.items()}
             return urls
             
         except Exception as e:
