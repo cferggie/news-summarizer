@@ -190,8 +190,8 @@ class CNNArticleFinder:
             return urls
             
         except Exception as e:
-            self.logger.error(f"Error creating URLs: {e}")
-            raise Exception(f"Error creating URLs: {e}")
+            self.logger.error(f"Error creating URLs in get_link: {e}")
+            raise Exception(f"Error creating URLs in get_link: {e}")
 
 def main():
     try:
