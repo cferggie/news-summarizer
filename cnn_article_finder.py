@@ -1,5 +1,5 @@
 import json
-import logging
+from logger import setup_logger
 from typing import Dict, List, Optional
 from base_scraper import BaseScraper
 
@@ -43,7 +43,7 @@ class CNNArticleFinder:
             ValueError: If no valid topics are found in the user_data json string
             CNNArticleFinderError: Invalid JSON format in user_data
         """
-        self.logger = logging.getLogger(__name__)
+        self.logger = setup_logger(__name__)
         
         try:
             parsed_data = json.loads(user_data)
@@ -181,18 +181,9 @@ class CNNArticleFinder:
             raise CNNArticleFinderError(f"Failed to process hyperlinks: {e}") from e
 
 def main():
-    # Set up logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(message)s',
-        filename='cnn_article_finder.log',
-        filemode='w'
-    )
-    
-    # Example usage
     try:
         user_data = json.dumps({
-            'topics': []
+            'topics': ['US']
         })
         
         article_finder = CNNArticleFinder(
@@ -201,15 +192,15 @@ def main():
         )
         
         # Execute and log results
-        logging.info(f"Selected topics: {article_finder.topics}")
-        logging.info(f"Topic pages: {article_finder.topic_pages}")
-        logging.info(f"Found hyperlinks: {article_finder.hyperlink_search()}")
-        logging.info(f"Complete URLs: {article_finder.get_link()}")
+        article_finder.logger.info(f"Selected topics: {article_finder.topics}")
+        article_finder.logger.info(f"Topic pages: {article_finder.topic_pages}")
+        article_finder.logger.info(f"Found hyperlinks: {article_finder.hyperlink_search()}")
+        article_finder.logger.info(f"Complete URLs: {article_finder.get_link()}")
         
     except CNNArticleFinderError as e:
-        logging.error(f"Application error: {e}")
+        article_finder.logger.error(f"Application error: {e}")
     except Exception as e:
-        logging.error(f"Unexpected error: {e}")
+        article_finder.logger.error(f"Unexpected error: {e}")
 
 if __name__ == '__main__':
     main() 
