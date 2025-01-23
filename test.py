@@ -7,7 +7,7 @@ url = "http://localhost:11434/api/generate"
 def summarize_text(paragraph):
 
     data = {
-        "model": "llama3.2",
+        "model": "deepseek-r1",
         "prompt": paragraph ,
         # "text": paragraph,
         "system": """
